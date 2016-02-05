@@ -1,3 +1,11 @@
+Use install sh
+==============
+
+::
+
+  ./install.sh nodename server|client master|slave
+
+or
 
 Install packages
 ================
