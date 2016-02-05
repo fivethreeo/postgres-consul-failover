@@ -62,7 +62,6 @@ do_start()
 do_stop()
 {
     kill -2 `cat $PIDFILE`
-    rm $PIDFILE
     return 0
 }
 
