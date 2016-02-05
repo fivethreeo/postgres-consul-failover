@@ -3,12 +3,15 @@ Install packages
 ================
 
 ::
+
     apt-get install keepalived haproxy
+
 
 Install consul binary
 =====================
 
 ::
+
     wget https://releases.hashicorp.com/consul/0.6.3/consul_0.6.3_linux_amd64.zip
     unzip consul_0.6.3_linux_amd64.zip
     cp consul /bin/
@@ -19,6 +22,7 @@ Install consul-template binary
 =============================
 
 ::
+
     wget https://releases.hashicorp.com/consul-template/0.12.2/consul-template_0.12.2_linux_amd64.zip
     unzip consul-template_0.12.2_linux_amd64.zip
     cp consul-template /bin
@@ -95,7 +99,7 @@ Configure consul and consul-template binary
     /etc/init.d/consul-template start
 
     sed -i -e "s/\(ENABLED\=\)0/\11/" /etc/default/haproxy
-    
+
 Configure keepalived
 ====================
 
