@@ -77,7 +77,7 @@ template {
   command = \"service haproxy restart\"
 }" > /etc/consul-template/consul-template.conf
 
-echo "DAEMON_ARGS=\"\-config /etc/consul-template/consul-template.conf\"" /etc/default/consul-template
+echo "DAEMON_ARGS=\"-config /etc/consul-template/consul-template.conf\"" > /etc/default/consul-template
 
 if [ ! -f /etc/init.d/consul-template ] ; then
 cp consul-template-init /etc/init.d/consul-template
@@ -113,5 +113,5 @@ vrrp_instance VI_1 {
         }
 }" > /etc/keepalived/keepalived.conf
 
-restart keepalived
-restart haproxy
+service keepalived restart
+service haproxy restart 
