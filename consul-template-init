@@ -44,12 +44,16 @@ do_start()
     #   0 if daemon has been started
     #   1 if daemon was already running
     #   2 if daemon could not be started
+    if [ -f $PIDFILE ] ; then
+        return 1
+    fi
     echo "Starting consul-template and backgrounding"
     exec $DAEMON --pid-file $PIDFILE $DAEMON_ARGS &> /dev/null &
     if [ "$?" = 0 ] ; then
         echo " OK"
         return 0
     fi
+    return 2
 }
 
 #
@@ -58,6 +62,7 @@ do_start()
 do_stop()
 {
     kill -2 `cat $PIDFILE`
+    rm $PIDFILE
     return 0
 }
 
