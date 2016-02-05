@@ -7,7 +7,7 @@ Use install.sh
 
 ::
 
-  ./install.sh nodename server|client master|slave
+  sh install.sh nodename server|client master|slave
 
 or
 
