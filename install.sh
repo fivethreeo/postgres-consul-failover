@@ -2,24 +2,29 @@
 
 apt-get install keepalived haproxy
 
+if [ ! -f /bin/consul ] ; then
 wget https://releases.hashicorp.com/consul/0.6.3/consul_0.6.3_linux_amd64.zip
 unzip consul_0.6.3_linux_amd64.zip
 cp consul /bin/
 chmod gu=rx /bin/consul
+fi
 
-
+if [ ! -f /bin/consul-template ] ; then
 wget https://releases.hashicorp.com/consul-template/0.12.2/consul-template_0.12.2_linux_amd64.zip
 unzip consul-template_0.12.2_linux_amd64.zip
 cp consul-template /bin
+fi
 
 
 clientserver=$2 # server or client
 masterslave=$3 # master or slave
 nodename=$1 # unique nodenamre
 
+role=BACKUP 
 priority=101
 if [ "$masterslave" == "master" ]; then
 	priority=100
+    role=MASTER
 fi
 if [ "$clientserver" == "server" ]; then
 	serverarg="-server "
@@ -34,9 +39,13 @@ mkdir -p /tmp/consul
 
 echo "DAEMON_ARGS=\"agent ${serverarg}-node=${nodename} -bind=${ip} -config-dir=/etc/consul -data-dir=/tmp/consul\"" > /etc/default/consul 
 
+if [ ! -f /etc/init.d/consul ] ; then
 cp consul-init /etc/init.d/consul
 chmod gu=rx /etc/init.d/consul
 /etc/init.d/consul start
+else
+/etc/init.d/consul restart    
+fi
 
 mkdir -p /etc/consul-template
 
@@ -68,24 +77,22 @@ template {
   command = \"service haproxy restart\"
 }" > /etc/consul-template/consul-template.conf
 
-cp consul-template-init /etc/init.d/consul-template
-
-sed -i -e "s/\(NAME=consul\)$/\1-template/" /etc/init.d/consul-template
-sed -i -e "s/\(\/etc\/consul\)\"/\1-template\"/" /etc/init.d/consul-template
-
 echo "DAEMON_ARGS=\"\-config /etc/consul-template/consul-template.conf\"" /etc/default/consul-template
 
+if [ ! -f /etc/init.d/consul-template ] ; then
+cp consul-template-init /etc/init.d/consul-template
 chmod gu=rx /etc/init.d/consul-template
 /etc/init.d/consul-template start
+else
+/etc/init.d/consul-template restart
+fi
 
 sed -i -e "s/\(ENABLED\=\)0/\11/" /etc/default/haproxy
 
-
 if ! grep -q "net.ipv4.ip_nonlocal_bind=1" /etc/sysctl.conf ; then
     echo "net.ipv4.ip_nonlocal_bind=1" >> /etc/sysctl.conf
+    sysctl -p
 fi
-
-sysctl -p
 
 echo "vrrp_script chk_haproxy {           # Requires keepalived-1.1.13
         script "killall -0 haproxy"     # cheaper than pidof
@@ -95,7 +102,7 @@ echo "vrrp_script chk_haproxy {           # Requires keepalived-1.1.13
 
 vrrp_instance VI_1 {
         interface eth0
-        state MASTER
+        state ${role}
         virtual_router_id 51
         priority ${priority}                    # 101 on master, 100 on backup
         virtual_ipaddress {
@@ -106,4 +113,5 @@ vrrp_instance VI_1 {
         }
 }" > /etc/keepalived/keepalived.conf
 
-start keepalived
+restart keepalived
+restart haproxy
