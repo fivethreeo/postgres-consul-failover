@@ -1,4 +1,8 @@
-Use install sh
+
+git clone https://github.com/fivethreeo/postgres-consul-failover.git
+cd postgres-consul-failover
+
+Use install.sh
 ==============
 
 ::
