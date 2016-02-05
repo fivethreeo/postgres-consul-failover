@@ -1,13 +1,14 @@
+::
 
-git clone https://github.com/fivethreeo/postgres-consul-failover.git
-cd postgres-consul-failover
+    git clone https://github.com/fivethreeo/postgres-consul-failover.git
+    cd postgres-consul-failover
 
 Use install.sh
 ==============
 
 ::
 
-  sh install.sh nodename server|client master|slave
+  bash install.sh nodename server|client master|slave
 
 or
 
